@@ -40,13 +40,9 @@ export default defineConfig(({ mode }) => {
       // Production build optimizations
       outDir: 'dist',
       sourcemap: false, // Disable sourcemaps in production for security
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: isProduction, // Remove console logs in production
-          drop_debugger: isProduction,
-          pure_funcs: isProduction ? ['console.log', 'console.info', 'console.debug'] : [],
-        },
+      minify: 'esbuild',
+      esbuild: {
+        drop: isProduction ? ['console', 'debugger'] : [], // Remove console logs and debugger in production
       },
       rollupOptions: {
         output: {

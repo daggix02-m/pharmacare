@@ -1,8 +1,8 @@
 {
   "framework": "vite",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "buildCommand": "cd program && npm run build",
+  "outputDirectory": "program/dist",
+  "installCommand": "cd program && npm install",
   "rewrites": [
     {
       "source": "/(.*)",
@@ -36,7 +36,7 @@
       ]
     },
     {
-      "source": "/assets/(.*)",
+      "source": "/static/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -45,6 +45,12 @@
       ]
     }
   ],
+  "git": {
+    "deploymentEnabled": {
+      "main": false,
+      "master": true
+    }
+  },
   "github": {
     "enabled": true,
     "autoJobCancelation": true
