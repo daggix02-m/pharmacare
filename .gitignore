@@ -1,0 +1,69 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+.pnp.cjs
+
+# Testing
+/coverage
+*.lcov
+
+# Production
+/build
+/dist
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*~
+
+# Vite
+.vite
+*.local
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Build artifacts
+*.tsbuildinfo
+
+# Cache
+.cache
+.parcel-cache
+.next
+.nuxt
+.vuepress/dist
+.serverless
+.fusebox
+.dynamodb
+.tern-port
+
+# Temporary files
+*.tmp
+*.temp
