@@ -2,6 +2,22 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
 /**
+ * Sanitize user input to prevent XSS
+ * @param {string} input - Input to sanitize
+ * @returns {string} Sanitized input
+ */
+const sanitizeInput = (input) => {
+  if (typeof input !== 'string') return input;
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+};
+
+/**
  * Generate PDF Receipt
  * @param {Object} receiptData - The receipt data
  */
@@ -20,15 +36,15 @@ export const generateReceiptPDF = (receiptData) => {
   doc.setLineWidth(0.5);
   doc.line(5, 25, 75, 25);
 
-  // Info
+  // Info - Sanitize user-controlled data
   doc.setFontSize(8);
-  doc.text(`Receipt #: ${receiptData.sale_id}`, 5, 32);
+  doc.text(`Receipt #: ${sanitizeInput(receiptData.sale_id)}`, 5, 32);
   doc.text(`Date: ${new Date(receiptData.created_at).toLocaleString()}`, 5, 37);
-  doc.text(`Customer: ${receiptData.customer_name || 'Walk-in'}`, 5, 42);
+  doc.text(`Customer: ${sanitizeInput(receiptData.customer_name) || 'Walk-in'}`, 5, 42);
 
-  // Items Table
+  // Items Table - Sanitize medicine_name
   const tableData = receiptData.items.map((item) => [
-    item.medicine_name,
+    sanitizeInput(item.medicine_name),
     item.quantity,
     `$${Number(item.unit_price).toFixed(2)}`,
     `$${(item.quantity * item.unit_price).toFixed(2)}`,
@@ -55,7 +71,7 @@ export const generateReceiptPDF = (receiptData) => {
 
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Payment: ${receiptData.payment_method.toUpperCase()}`, 5, finalY + 5);
+  doc.text(`Payment: ${receiptData.payment_method ? receiptData.payment_method.toUpperCase() : 'N/A'}`, 5, finalY + 5);
 
   if (receiptData.amount_paid) {
     doc.text(`Paid: $${Number(receiptData.amount_paid).toFixed(2)}`, 5, finalY + 10);

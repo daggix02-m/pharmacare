@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import Navigation from '@/components/layout/Navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import DataTable from '@/components/common/DataTable';
+import { TableSkeleton } from '@/components/common/LoadingStates';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -888,15 +889,19 @@ const ManagerSales = () => {
                   onRetry={fetchSalesData}
                   isEmpty={sales.length === 0}
                 >
-                  <DataTable
-                    columns={columns}
-                    data={sales.filter(
-                      (s) =>
-                        s.customer_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
-                        s.sale_id?.toString().includes(filters.search)
-                    )}
-                    pagination
-                  />
+                  {loading ? (
+                    <TableSkeleton />
+                  ) : (
+                    <DataTable
+                      columns={columns}
+                      data={sales.filter(
+                        (s) =>
+                          s.customer_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+                          s.sale_id?.toString().includes(filters.search)
+                      )}
+                      pagination
+                    />
+                  )}
                 </AsyncWrapper>
               </CardContent>
             </Card>
@@ -915,11 +920,15 @@ const ManagerSales = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className='pt-6'>
-                <DataTable
-                  columns={auditTrailColumns}
-                  data={auditTrail}
-                  pagination
-                />
+                {loading ? (
+                  <TableSkeleton />
+                ) : (
+                  <DataTable
+                    columns={auditTrailColumns}
+                    data={auditTrail}
+                    pagination
+                  />
+                )}
               </CardContent>
             </Card>
           )}

@@ -32,7 +32,7 @@ export const ProtectedRoute = ({ children, allowedRoles = [], redirectTo = '/log
   // Check if user has required role
   if (allowedRoles.length > 0) {
     const rolesArray = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
-    const hasRequiredRole = rolesArray.includes(role);
+    const hasRequiredRole = role && rolesArray.includes(role);
 
     if (!hasRequiredRole) {
       // Redirect to user's default page based on their role

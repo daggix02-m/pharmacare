@@ -73,7 +73,6 @@ export const managerService = {
   },
 
   async verifyStaff(userId, verificationCode) {
-    console.log('[MANAGER SERVICE] verifyStaff called with:', { userId, verificationCode });
     return await makeApiCall('/manager/staff/verify', {
       method: 'POST',
       body: JSON.stringify({
@@ -223,8 +222,10 @@ export const managerService = {
       
       // Try pharmacist endpoint if manager one fails
       // Note: This might still fail with 403 if RBAC is strict, but it's a valid fallback attempt
+      console.warn('[MANAGER SERVICE] Manager endpoint failed, attempting fallback to pharmacist endpoint');
       return await makeApiCall(`/pharmacist/medicines/${medicineId}`, { method: 'GET' });
     } catch (error) {
+      console.warn('[MANAGER SERVICE] Manager endpoint error, attempting fallback to pharmacist endpoint:', error.message);
       return await makeApiCall(`/pharmacist/medicines/${medicineId}`, { method: 'GET' });
     }
   },

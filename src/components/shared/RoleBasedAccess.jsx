@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Component to render content based on user role
@@ -74,8 +74,28 @@ export const usePermissions = (permissionNames, requireAll = true) => {
   // Admin has all permissions
   if (isAdmin) return true;
   
-  // Check each permission
-  const permissionResults = permissionNames.map(name => usePermission(name));
+  // Use useMemo to check permissions without calling hooks inside map
+  const permissionResults = useMemo(() => {
+    const isManager = user.role_id === 2;
+    
+    // Manager-specific permissions
+    const managerPermissions = [
+      'managers.create',
+      'managers.read',
+      'managers.update',
+      'managers.delete',
+      'users.create',
+      'users.read',
+      'users.update',
+      'users.delete',
+      'users.assign_role',
+    ];
+    
+    return permissionNames.map(name => {
+      if (isManager && managerPermissions.includes(name)) return true;
+      return false;
+    });
+  }, [user.role_id, permissionNames]);
   
   if (requireAll) {
     return permissionResults.every(result => result);
@@ -131,21 +151,21 @@ export const useCanManageUsers = () => {
   return usePermissions(['users.create', 'users.read', 'users.update', 'users.delete'], false);
 };
 
-// Security utility functions
+// Security utility functions (NOTE: These are regular functions, not hooks)
 export const securityUtils = {
   /**
    * Check if current user can perform action
+   * WARNING: This function must receive user data as parameter, not use useAuth() hook
+   * React hooks can only be called from React components or other hooks
    */
-  canPerformAction: (action, targetUser = null) => {
-    const { user } = useAuth();
-    
-    if (!user) return false;
+  canPerformAction: (action, targetUser = null, currentUser = null) => {
+    if (!currentUser) return false;
 
     const rules = {
-      create_manager: user.role_id === 2, // Only managers can create managers
-      delete_manager: user.role_id === 2 && user.id !== targetUser?.id, // Can't delete self
-      modify_manager: user.role_id === 2 && user.id !== targetUser?.id, // Can't modify self
-      reset_password: user.role_id === 2 || user.role_id === 1, // Managers and admins
+      create_manager: currentUser.role_id === 2, // Only managers can create managers
+      delete_manager: currentUser.role_id === 2 && currentUser.id !== targetUser?.id, // Can't delete self
+      modify_manager: currentUser.role_id === 2 && currentUser.id !== targetUser?.id, // Can't modify self
+      reset_password: currentUser.role_id === 2 || currentUser.role_id === 1, // Managers and admins
     };
 
     return rules[action] || false;
@@ -156,7 +176,7 @@ export const securityUtils = {
    */
   sanitizeInput: (input) => {
     if (typeof input !== 'string') return input;
-    
+
     return input
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -185,7 +205,7 @@ export const securityUtils = {
       'guerrillamail.com',
       'mailinator.com',
     ];
-    
+
     const domain = email.split('@')[1]?.toLowerCase();
     return disposableDomains.includes(domain);
   },

@@ -1,24 +1,9 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://pharmacare-api.onrender.com';
 
-// Log the API_BASE_URL for debugging
-console.log('[API CLIENT DEBUG] Environment variables:', {
-  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-  API_BASE_URL: API_BASE_URL,
-  NODE_ENV: import.meta.env.NODE_ENV,
-  MODE: import.meta.env.MODE
-});
-
 const normalizeUrl = (baseUrl, endpoint) => {
   const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
   const cleanEndpoint = endpoint.replace(/^\/+/, '');
   const normalizedUrl = `${cleanBaseUrl}/${cleanEndpoint}`;
-  console.log('[API CLIENT DEBUG] URL normalization:', {
-    baseUrl,
-    endpoint,
-    cleanBaseUrl,
-    cleanEndpoint,
-    normalizedUrl
-  });
   return normalizedUrl;
 };
 
@@ -40,32 +25,6 @@ const fetchWithTimeout = (url, options = {}, timeoutMs = 60000) => {
   return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
 };
 
-const isMobile = () => {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-};
-
-const fetchWithRetry = async (url, options = {}, maxRetries = 3) => {
-  let lastError;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const response = await fetch(url, options);
-      return response;
-    } catch (error) {
-      lastError = error;
-
-      if (error.name === 'AbortError' || attempt === maxRetries - 1) {
-        throw error;
-      }
-
-      const backoffTime = Math.pow(2, attempt) * 1000;
-      await new Promise((resolve) => setTimeout(resolve, backoffTime));
-    }
-  }
-
-  throw lastError;
-};
-
 export const apiClient = async (endpoint, options = {}) => {
   const url = normalizeUrl(API_BASE_URL, endpoint);
   const currentToken = getToken('accessToken');
@@ -85,26 +44,8 @@ export const apiClient = async (endpoint, options = {}) => {
   delete config.skipContentType;
   delete config.skipAuth;
 
-  // Log API request details for debugging
-  console.log('[API CLIENT] Request Details:', {
-    endpoint,
-    fullUrl: url,
-    method: config.method || 'GET',
-    hasAuth: shouldAddAuth,
-    hasBody: !!options.body,
-    apiBaseUrl: API_BASE_URL
-  });
-
   try {
     let response = await fetchWithTimeout(url, config);
-
-    // Log response details for debugging
-    console.log('[API CLIENT] Response Details:', {
-      endpoint,
-      status: response.status,
-      ok: response.ok,
-      statusText: response.statusText
-    });
 
     if (!response.ok && response.status === 0) {
       throw new Error(
@@ -155,8 +96,6 @@ export const apiClient = async (endpoint, options = {}) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.log('[API CLIENT] Error Data:', errorData);
-      console.log('[API CLIENT] Full Error Details:', JSON.stringify(errorData, null, 2));
       let errorMessage = errorData.message;
 
       const isPostgreSQLError = errorMessage?.includes('function year') ||
@@ -247,6 +186,12 @@ export const isAuthenticated = () => {
   return false;
 };
 
+/**
+ * Store token in localStorage or sessionStorage
+ * SECURITY WARNING: Storing sensitive tokens (especially refresh tokens) in localStorage
+ * makes them vulnerable to XSS attacks. For production, implement httpOnly cookies
+ * with proper SameSite attributes on the backend for refresh tokens.
+ */
 export const setToken = (key, value) => {
   if (isStorageAvailable()) {
     localStorage.setItem(key, value);

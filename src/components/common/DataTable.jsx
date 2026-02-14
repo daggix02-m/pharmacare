@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, memo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,13 +32,23 @@ const DataTable = ({
   onRowClick,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filter data based on search
+  // Debounce search input to improve performance
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300); // 300ms debounce delay
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Filter data based on search (using debounced query)
   const filteredData = searchable
     ? data.filter((row) =>
         Object.values(row).some((value) =>
-          String(value).toLowerCase().includes(searchQuery.toLowerCase())
+          String(value).toLowerCase().includes(debouncedSearchQuery.toLowerCase())
         )
       )
     : data;
@@ -184,4 +194,7 @@ const DataTable = ({
   );
 };
 
-export default DataTable;
+// Memoize DataTable to prevent unnecessary re-renders
+const DataTableMemo = memo(DataTable);
+
+export default DataTableMemo;

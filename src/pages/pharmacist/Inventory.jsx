@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import DataTable from '@/components/common/DataTable';
+import { TableSkeleton } from '@/components/common/LoadingStates';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,11 @@ import {
   validateBatchNumber,
 } from '@/utils/validation';
 import {
+  getCategoryName,
+  getCategoryIdFromName,
+  getCategoriesList,
+} from '@/utils/categoryUtils';
+import {
   Plus,
   Pencil,
   Trash2,
@@ -56,28 +62,6 @@ const PharmacistInventory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   // eslint-disable-next-line no-unused-vars
   const [totalPages, setTotalPages] = useState(1);
-
-  // Category ID to Name mapping
-  const categoryMap = {
-    1: 'Pain Relief',
-    2: 'Antibiotics',
-    3: 'Antihistamines',
-    4: 'Vitamins',
-    5: 'Supplements',
-    6: 'Cardiovascular',
-    7: 'Respiratory',
-    8: 'Gastrointestinal',
-    9: 'Dermatological',
-  };
-
-  const getCategoryName = (categoryId) => {
-    return categoryMap[categoryId] || 'Unknown';
-  };
-
-  const getCategoryIdFromName = (categoryName) => {
-    const entry = Object.entries(categoryMap).find(([id, name]) => name === categoryName);
-    return entry ? parseInt(entry[0]) : '';
-  };
 
   // Modals
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -581,14 +565,18 @@ const PharmacistInventory = () => {
                     </div>
                   </div>
 
-                  <DataTable
-                    columns={columns}
-                    data={medicines}
-                    searchable={false}
-                    pagination={true}
-                    itemsPerPage={20}
-                    onRowClick={handleRowClick}
-                  />
+                  {loading ? (
+                    <TableSkeleton />
+                  ) : (
+                    <DataTable
+                      columns={columns}
+                      data={medicines}
+                      searchable={false}
+                      pagination={true}
+                      itemsPerPage={20}
+                      onRowClick={handleRowClick}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

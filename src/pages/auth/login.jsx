@@ -9,6 +9,7 @@ import FloatingPaths from '@/components/shared/FloatingPaths';
 import { AppleIcon, AtSignIcon, GithubIcon, LockIcon, Eye, EyeOff } from 'lucide-react';
 import { login } from '@/api/auth.api';
 import { toast } from 'sonner';
+import { validateEmail } from '@/utils/validation';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -19,16 +20,13 @@ export function LoginPage() {
   const navigate = useNavigate();
   const { login: authLogin } = useAuth();
 
-  const validateEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email address.');
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      setError(emailValidation.error);
       return;
     }
 
@@ -42,7 +40,6 @@ export function LoginPage() {
     // Production mode: Normal API authentication
     try {
       const response = await login(email, password);
-      console.log('LOGIN RESPONSE:', response);
 
       if (!response.success) {
         // Provide more specific error messages based on the response

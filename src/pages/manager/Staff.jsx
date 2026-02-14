@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import DataTable from '@/components/common/DataTable';
+import { TableSkeleton } from '@/components/common/LoadingStates';
 import {
   Dialog,
   DialogContent,
@@ -659,7 +660,7 @@ const ManagerStaff = () => {
             </CardHeader>
             <CardContent className='p-0'>
               <AsyncWrapper loading={loading} error={error} onRetry={fetchStaff}>
-                <DataTable columns={columns} data={staff} />
+                {loading ? <TableSkeleton /> : <DataTable columns={columns} data={staff} />}
               </AsyncWrapper>
             </CardContent>
           </Card>

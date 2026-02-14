@@ -27,23 +27,68 @@ export const clearAuthData = () => {
   removeToken('userName');
   removeToken('userEmail');
   removeToken('roleId');
+  removeToken('branchId');
   removeToken('requiresPasswordChange');
+};
+
+/**
+ * Decode JWT token payload safely (handles URL-safe Base64)
+ * @param {string} token - JWT token
+ * @returns {Object|null} Decoded payload or null if invalid
+ */
+const decodeJWTPayload = (token) => {
+  if (!token || typeof token !== 'string') return null;
+
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const base64Payload = parts[1];
+    if (!base64Payload) return null;
+
+    // Convert URL-safe Base64 to standard Base64
+    const base64 = base64Payload
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+
+    // Add padding if needed
+    const padding = '='.repeat((4 - (base64.length % 4)) % 4);
+    const paddedBase64 = base64 + padding;
+
+    // Decode Base64 and handle UTF-8 characters properly
+    const binaryString = atob(paddedBase64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // Decode UTF-8 bytes to string
+    const decodedString = new TextDecoder('utf-8').decode(bytes);
+    const payload = JSON.parse(decodedString);
+
+    return payload;
+  } catch (error) {
+    console.error('Error decoding JWT token:', error);
+    return null;
+  }
 };
 
 /**
  * Check if JWT token is expired
  * @param {string} token - JWT token
- * @returns {boolean} True if expired
+ * @returns {boolean} True if expired or invalid
  */
 export const isTokenExpired = (token) => {
   if (!token) return true;
 
+  const payload = decodeJWTPayload(token);
+  if (!payload) return true;
+
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
     const expirationTime = payload.exp * 1000; // Convert to milliseconds
     return Date.now() >= expirationTime;
   } catch (error) {
-    console.error('Error parsing token:', error);
+    console.error('Error checking token expiration:', error);
     return true;
   }
 };

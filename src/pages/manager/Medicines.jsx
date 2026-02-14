@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import DataTable from '@/components/common/DataTable';
+import { TableSkeleton } from '@/components/common/LoadingStates';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,11 @@ import {
   validateExpiryDate,
   validateBatchNumber,
 } from '@/utils/validation';
+import {
+  getCategoryName,
+  getCategoryIdFromName,
+  getCategoriesList,
+} from '@/utils/categoryUtils';
 import {
   Package,
   Plus,
@@ -58,29 +64,6 @@ const ManagerMedicines = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  // Category ID to Name mapping
-  const categoryMap = {
-    1: 'Pain Relief',
-    2: 'Antibiotics',
-    3: 'Antihistamines',
-    4: 'Vitamins',
-    5: 'Supplements',
-    6: 'Cardiovascular',
-    7: 'Respiratory',
-    8: 'Gastrointestinal',
-    9: 'Dermatological',
-  };
-
-  const getCategoryName = (categoryId) => {
-    return categoryMap[categoryId] || 'Unknown';
-  };
-
-  // Helper function to get category ID from category name
-  const getCategoryIdFromName = (categoryName) => {
-    const entry = Object.entries(categoryMap).find(([id, name]) => name === categoryName);
-    return entry ? parseInt(entry[0]) : '';
-  };
 
   // Handle category selection from dropdown
   const handleCategoryChange = (categoryName) => {

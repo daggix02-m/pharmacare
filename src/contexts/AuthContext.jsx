@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }) => {
             removeToken('userName');
             removeToken('userEmail');
             removeToken('roleId');
+            removeToken('branchId');
             setIsAuthenticated(false);
           }
         } catch (error) {
@@ -55,6 +56,7 @@ export const AuthProvider = ({ children }) => {
           removeToken('userName');
           removeToken('userEmail');
           removeToken('roleId');
+          removeToken('branchId');
           setIsAuthenticated(false);
         }
       } else {

@@ -77,13 +77,11 @@ export const signup = async (full_name, email, password, role_id, branch_id) => 
 };
 
 export const signupManager = async (managerData) => {
-  console.log('[SIGNUP API] Payload being sent:', managerData);
   const result = await makeApiCall('/auth/register', {
     method: 'POST',
     skipAuth: true,
     body: JSON.stringify(managerData),
   });
-  console.log('[SIGNUP API] Response received:', result);
   return result;
 };
 
@@ -131,6 +129,7 @@ export const logout = async () => {
         removeToken('userName');
         removeToken('userEmail');
         removeToken('roleId');
+        removeToken('branchId');
       })
       .catch(() => {
         localStorage.removeItem('accessToken');
@@ -140,10 +139,16 @@ export const logout = async () => {
         localStorage.removeItem('userName');
         localStorage.removeItem('userEmail');
         localStorage.removeItem('roleId');
+        localStorage.removeItem('branchId');
       });
   }
 };
 
+/**
+ * Refresh access token using refresh token
+ * SECURITY WARNING: Refresh tokens stored in localStorage are vulnerable to XSS attacks.
+ * Production implementation should use httpOnly cookies with SameSite=Strict/Lax.
+ */
 export const refreshToken = async () => {
   const refreshToken = localStorage.getItem('refreshToken');
   if (!refreshToken) {
@@ -262,10 +267,7 @@ export const changePassword = async (currentPassword, newPassword) => {
     },
     body: JSON.stringify({
       current_password: currentPassword,
-      old_password: currentPassword,
       new_password: newPassword,
-      password: newPassword,
-      password_confirmation: newPassword,
       new_password_confirmation: newPassword,
     }),
   });

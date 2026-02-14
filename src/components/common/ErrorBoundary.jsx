@@ -43,18 +43,12 @@ class ErrorBoundary extends Component {
   };
 
   handleGoHome = () => {
-    // Get user from localStorage
-    const userStr = localStorage.getItem('user');
-    let user = null;
+    // Get user role from localStorage (app stores individual keys, not a 'user' object)
+    const userRole = localStorage.getItem('userRole');
+    const userId = localStorage.getItem('userId');
 
-    try {
-      user = userStr ? JSON.parse(userStr) : null;
-    } catch (error) {
-      console.error('Failed to parse user data from localStorage:', error);
-      user = null;
-    }
-
-    if (!user || !user.role) {
+    // If no authenticated user, redirect to login
+    if (!userRole || !userId) {
       window.location.href = '/login';
       return;
     }
@@ -67,7 +61,7 @@ class ErrorBoundary extends Component {
       cashier: '/cashier/dashboard',
     };
 
-    const dashboardPath = roleDashboards[user.role] || '/login';
+    const dashboardPath = roleDashboards[userRole] || '/login';
     window.location.href = dashboardPath;
   };
 
