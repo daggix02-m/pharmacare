@@ -5,6 +5,10 @@
   "installCommand": "npm install",
   "rewrites": [
     {
+      "source": "/api/:match*",
+      "destination": "https://pharmacare-api.onrender.com/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

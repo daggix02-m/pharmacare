@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://pharmacare-api.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const normalizeUrl = (baseUrl, endpoint) => {
   const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
@@ -98,12 +98,14 @@ export const apiClient = async (endpoint, options = {}) => {
       const errorData = await response.json().catch(() => ({}));
       let errorMessage = errorData.message;
 
-      const isPostgreSQLError = errorMessage?.includes('function year') ||
-                               errorData.errorCode === '42883' ||
-                               errorMessage?.includes('timestamp without time zone');
-      
+      const isPostgreSQLError =
+        errorMessage?.includes('function year') ||
+        errorData.errorCode === '42883' ||
+        errorMessage?.includes('timestamp without time zone');
+
       if (isPostgreSQLError) {
-        errorMessage = 'Database query error: The backend is using incompatible SQL syntax. Please contact the backend team.';
+        errorMessage =
+          'Database query error: The backend is using incompatible SQL syntax. Please contact the backend team.';
       }
 
       switch (response.status) {

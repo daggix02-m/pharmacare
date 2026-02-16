@@ -12,6 +12,15 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'https://pharmacare-api.onrender.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+      },
+    },
     build: {
       // Production build optimizations
       outDir: 'dist',
@@ -29,7 +38,17 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             // Split vendor chunks for better caching
             'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-            'ui-vendor': ['@radix-ui/react-avatar', '@radix-ui/react-dialog', '@radix-ui/react-icons', '@radix-ui/react-label', '@radix-ui/react-select', '@radix-ui/react-separator', '@radix-ui/react-slot', '@radix-ui/react-tabs', '@radix-ui/react-tooltip'],
+            'ui-vendor': [
+              '@radix-ui/react-avatar',
+              '@radix-ui/react-dialog',
+              '@radix-ui/react-icons',
+              '@radix-ui/react-label',
+              '@radix-ui/react-select',
+              '@radix-ui/react-separator',
+              '@radix-ui/react-slot',
+              '@radix-ui/react-tabs',
+              '@radix-ui/react-tooltip',
+            ],
             'charts-vendor': ['recharts'],
             'utils-vendor': ['axios', 'date-fns', 'zustand'],
           },
